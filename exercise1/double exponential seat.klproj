@@ -1,0 +1,55 @@
+// Author: Inigo Quiles
+// Title: Expo
+// TheBookOfShaders.com
+
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+float PI = 3.14159265359;
+
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+
+float plot(vec2 st, float pct){
+  return  smoothstep( pct-0.02, pct, st.y) -
+          smoothstep( pct, pct+0.02, st.y);
+}
+
+float getA(float a){
+    
+    float epsilon = 0.00001;
+    float min_param_a = 0.0 + epsilon;
+    float max_param_a = 1.0 - epsilon;
+    
+    return max(min_param_a, min(max_param_a, a));
+}
+
+float doubleExpSeat(float x, float a){
+    
+    a = getA(a);
+    
+    float y = 0.0;
+    
+    if(x <= 0.5){
+        y = (pow(2.0 * x, 1.0 - a)) / 2.0;   
+    } else {
+        y = 1.0 - (pow(2.0 * (1.0 - x), 1.0 - a)) / 2.0;   
+    }
+    
+    return y;
+}
+
+void main() {
+    vec2 st = gl_FragCoord.xy/u_resolution;
+
+    float y = doubleExpSeat(st.x, abs(sin(u_time)));
+
+    vec3 color = vec3(y);
+
+    float pct = plot(st,y);
+    color = (1.0-pct)*color+pct*vec3(0.0,1.0,0.0);
+
+    gl_FragColor = vec4(color,1.0);
+}
