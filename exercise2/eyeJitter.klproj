@@ -1,0 +1,29 @@
+// Adapted from: https://github.com/mattdesl/glsl-checker
+
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+#define PI 3.14159265359
+
+uniform vec2 u_resolution;
+uniform float u_time;
+ 
+float checker(vec2 st, float repeats) {
+  float cx = floor(repeats * st.x);
+  float cy = floor(repeats * st.y); 
+  float result = mod(cx + cy, 2.0);
+  return sign(result);
+}
+ 
+void main (){
+  vec2 st = gl_FragCoord.xy/u_resolution.xy;
+  float pct = distance(st,vec2(0.5));
+  if(pct > PI/10.) {
+  st.y *= 3.;
+  } else {
+  st.x *= 3.;
+  }
+  float c = mix(1.0, 0., checker(st, 9.));
+  gl_FragColor = vec4(c, c, c, 1.0);  
+}
