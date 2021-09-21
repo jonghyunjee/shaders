@@ -4,26 +4,31 @@
 precision mediump float;
 #endif
 
-#define PI 3.14159265359
-
 uniform vec2 u_resolution;
 uniform float u_time;
  
 float checker(vec2 st, float repeats) {
   float cx = floor(repeats * st.x);
   float cy = floor(repeats * st.y); 
-  float result = mod(cx + cy, 2.0);
+  float result = mod(cx + cy, 2.);
   return sign(result);
 }
  
 void main (){
   vec2 st = gl_FragCoord.xy/u_resolution.xy;
-  float pct = distance(st,vec2(0.5));
-  if(pct > PI/10.) {
-  st.y *= 3.;
+  float pct = distance(st,vec2(0.5)); 
+  //float pct = distance(st,vec2(0.5+sin(u_time)/10.));
+  //if(pct > .3) {
+  if(pct > abs(sin(u_time)/2.5)) {
+    st.y *= 3.;
+    //st.y *= sin(u_time);
   } else {
-  st.x *= 3.;
+    st.x *= 3.;
+    st.x *= sin(u_time);
+    //st.x *= pct/cos(u_time)+0.01;
   }
-  float c = mix(1.0, 0., checker(st, 9.));
-  gl_FragColor = vec4(c, c, c, 1.0);  
+  float c = mix(1.0, 0., checker(st, 10.));
+  //float c = mix(1.0, 0., checker(st, 10.+sin(u_time)*2.));
+  //gl_FragColor = vec4(c, c, c, 1.);
+  gl_FragColor = vec4(c*pct/abs(sin(u_time)*0.6), c+pct*sin(u_time), c-pct, 1.);  
 }
