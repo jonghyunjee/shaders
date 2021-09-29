@@ -5,11 +5,6 @@ precision mediump float;
 uniform vec2 u_resolution;
 uniform float u_time;
 
-float circle(vec2 pos, float radius) {
-    float d = distance(vec2(.5), pos);
-    return step(d, radius*.5);
-}
-
 vec2 rotate2D(vec2 pos, float angle) {
   pos -= vec2(.5);
   pos = mat2(cos(angle), -sin(angle), sin(angle), cos(angle)) * pos;
@@ -17,33 +12,24 @@ vec2 rotate2D(vec2 pos, float angle) {
   return pos;
 }
 
-mat2 scale(vec2 scaleFactor) {
-  return mat2(scaleFactor.x, 0., 0., scaleFactor.y);
-}
-
 void main(){
   vec2 st = gl_FragCoord.xy / u_resolution;
-  st = rotate2D(st, u_time*.5);
-  
-  vec2 grid = fract(st*50.);
-  grid = rotate2D(grid, u_time);
-  
-  st -= vec2(0.5);
-  
-  //st *= rotate2D(st/grid, sin(u_time));
-  
-  vec2 translate = vec2(-0.5, -0.5);
+  st = rotate2D(st, u_time*.5); //the rotation of the canvas 
+  vec2 translate = vec2(-0.5, -0.5); //the translation of the center
   st += translate;
   
-  st += vec2(0.5);
-  
+  vec2 grid = fract(st*50.); //sets the fineness of the grid
+  //st *= rotate2D(grid, sin(u_time));
+ 
   vec3 color = vec3(0.0);
 
-  for(int i = 0; i < 40; i++){
-    //float radius = .3;
-    float radius = abs(sin(u_time))/PI;
-    float rad = radians(360.0 / 40.0) * float(i);
-    color += 0.003 / length(st * smoothstep(0.0, 0.2, grid) + vec2(radius * cos(rad), radius * sin(rad)));
+  for(int i = 0; i < 40; i++){ //the number of i = dots
+    //float radius = .3; 
+    float radius = abs(sin(u_time))/PI; //the radius ranges between 0 and 0.318
+    float rad = radians(360.0 / 40.0) * float(i); //spreads out each circle by radians
+    color += 0.003 / length(st * smoothstep(0.0, 0.2, grid) + vec2(radius*cos(rad), radius*sin(rad)));
+    //st combined with smooth stepped grid yields the pixelated cruciform
+    //cosine and sine values of radians arrange the lights in a circle
 }
   
   color.r += 0.2 / length(grid + vec2(abs(sin(u_time)), abs(cos(u_time))));
