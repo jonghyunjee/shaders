@@ -28,7 +28,7 @@ mat2 rotate2D(in float t) {
               sin(t),  cos(t));
 }
 
-vec2 kaleido(in vec2 p, in float s) {
+vec2 kaleido(in vec2 p, in float s) { //symmetrically splits the canvas, s = number of reflections
    float a = PI / s - atan(p.x, p.y);
    float n = PI*2. / s;
    a = floor(a / n) * n;
@@ -42,18 +42,17 @@ void main(void)
   
   // calculate the distance to the center
   float d = distance(uv, vec2(0.5, 0.5));
-  // divide space into 8 concentric rings
-  float circle = floor(d * 40.0);
-  // spin un/even rings in opposite directions
-  if(mod(circle, 10.) == 0.) {
-    circle *= -1.;
-  }
 
   // move space to the center
   uv -= vec2(0.5, 0.5);
-  // rotate based on circle and time
-  uv *= rotate2D(time * circle * 0.1);
-  uv *= kaleido(uv, abs(sin(time)))/yFlip(uv)-xFlip(uv);
+  
+  uv *= uv/yFlip(uv)-xFlip(uv);
+  
+  //try different kaleidoscope effects below
+  uv += kaleido(uv, abs(sin(time/4.))*10.);
+  uv *= kaleido(uv, abs(sin(time/2.))+5.);
+  // uv -= kaleido(uv, abs(sin(time/4.))*10.);
+  
   // move space back to origin
   uv += vec2(0.5, 0.5);
 
