@@ -1,0 +1,63 @@
+#ifdef GL_ES
+precision mediump float;
+#endif
+#define PI 3.1415926
+
+uniform float time;
+uniform vec2 resolution;
+uniform vec2 mouse;
+uniform sampler2D noise1;
+
+uniform sampler2D texture4;
+
+varying vec3 v_normal;
+varying vec2 v_texcoord;
+
+vec2 xFlip(vec2 p) {
+  p.x = abs(p.x);
+  return p;
+}
+
+vec2 yFlip(vec2 p) {
+  p.y = abs(p.y);
+  return p;
+}
+
+mat2 rotate2D(in float t) {
+  return mat2(cos(t), -sin(t),
+              sin(t),  cos(t));
+}
+
+vec2 kaleido(in vec2 p, in float s) {
+   float a = PI / s - atan(p.x, p.y);
+   float n = PI*2. / s;
+   a = floor(a / n) * n;
+   p *= rotate2D(a);
+   return p;
+}
+
+void main(void)
+{
+  vec2 uv = vec2(v_texcoord.x, 1.-v_texcoord.y);
+  
+  // calculate the distance to the center
+  float d = distance(uv, vec2(0.5, 0.5));
+  // divide space into 8 concentric rings
+  float circle = floor(d * 40.0);
+  // spin un/even rings in opposite directions
+  if(mod(circle, 10.) == 0.) {
+    circle *= -1.;
+  }
+
+  // move space to the center
+  uv -= vec2(0.5, 0.5);
+  // rotate based on circle and time
+  uv *= rotate2D(time * circle * 0.1);
+  uv *= kaleido(uv, abs(sin(time)))/yFlip(uv)-xFlip(uv);
+  // move space back to origin
+  uv += vec2(0.5, 0.5);
+
+  vec4 color = texture2D(texture4, uv);
+
+  gl_FragColor = color;
+}
